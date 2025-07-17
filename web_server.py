@@ -5,13 +5,10 @@ import asyncio
 from threading import Thread
 import json
 from datetime import datetime
-import eventlet
-eventlet.monkey_patch()
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
 # Store recent events for new connections
 recent_events = {

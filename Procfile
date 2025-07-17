@@ -1,1 +1,1 @@
-web: python main_visual_production.py
+web: gunicorn --config gunicorn_config.py wsgi:application
