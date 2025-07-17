@@ -1,1 +1,1 @@
-web: python main_visual.py
+web: python main_visual_production.py

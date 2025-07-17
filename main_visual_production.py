@@ -2,13 +2,14 @@ import asyncio
 import logging
 import signal
 from colorama import init
-from threading import Thread
+import threading
+import time
 
 from websocket_manager import BinanceWebSocketManager
 from liquidation_handler import LiquidationHandler
 from funding_handler import FundingHandler
 from trades_handler import TradesHandler
-from web_server import run_server, emit_liquidation, emit_trade, emit_funding, socketio
+from web_server import app, socketio, emit_liquidation, emit_trade, emit_funding
 
 # Initialize colorama for Windows support
 init()
@@ -285,32 +286,33 @@ def handle_settings_update(data):
     socketio.emit('settings_updated', {'status': 'ok'})
 
 
-async def main():
-    """Main entry point"""
+def run_async_in_thread():
+    """Run the async data streams in a separate thread"""
     global stream_instance
     
-    # Start Flask server in a separate thread
-    server_thread = Thread(target=run_server, daemon=True)
-    server_thread.start()
-    
-    # Wait a bit for the server to start
-    await asyncio.sleep(1)
+    # Create new event loop for this thread
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     
     stream_instance = BinanceDataStreamVisualDynamic()
     
     try:
-        await stream_instance.start()
-    except KeyboardInterrupt:
-        stream_instance.stop()
+        loop.run_until_complete(stream_instance.start())
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"Error in async thread: {e}")
     finally:
-        print("👋 Goodbye!")
+        loop.close()
 
 
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print("\n\n🛑 Interrupted by user")
-        print("👋 Goodbye!")
+    # Start the data streams in a separate thread
+    data_thread = threading.Thread(target=run_async_in_thread, daemon=True)
+    data_thread.start()
+    
+    # Give the data thread time to start
+    time.sleep(2)
+    
+    # Run the Flask app in the main thread
+    import os
+    port = int(os.environ.get('PORT', 5000))
+    socketio.run(app, host='0.0.0.0', port=port, debug=False)
