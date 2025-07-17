@@ -1,0 +1,409 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #0d1117;
+    color: #c9d1d9;
+    line-height: 1.6;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.app-layout {
+    display: flex;
+    height: 100vh;
+    gap: 0;
+}
+
+/* Header removed */
+
+h1 {
+    font-size: 2rem;
+    color: #58a6ff;
+}
+
+.stats {
+    display: flex;
+    gap: 20px;
+}
+
+.stat-card {
+    background: #161b22;
+    padding: 15px 25px;
+    border-radius: 8px;
+    border: 1px solid #30363d;
+}
+
+.stat-card .label {
+    font-size: 0.875rem;
+    color: #8b949e;
+    display: block;
+}
+
+.stat-card .value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #f0f6fc;
+}
+
+/* Settings Panel */
+.settings-panel {
+    width: 280px;
+    background: #161b22;
+    border-right: 1px solid #30363d;
+    padding: 20px;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.settings-panel h2 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    color: #f0f6fc;
+}
+
+.settings-section {
+    margin-bottom: 30px;
+}
+
+.settings-section h3 {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #8b949e;
+    margin-bottom: 15px;
+}
+
+.symbol-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.symbol-toggle {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.symbol-toggle:hover {
+    border-color: #58a6ff;
+}
+
+.symbol-toggle input[type="checkbox"] {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.symbol-toggle input[type="checkbox"]:checked + .toggle-label {
+    color: #58a6ff;
+    font-weight: 500;
+}
+
+.toggle-label {
+    font-size: 0.9rem;
+    color: #c9d1d9;
+}
+
+.threshold-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    font-size: 0.85rem;
+    color: #8b949e;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-prefix {
+    position: absolute;
+    left: 12px;
+    color: #8b949e;
+    font-size: 0.9rem;
+}
+
+.input-wrapper input {
+    width: 100%;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    padding: 10px 12px 10px 28px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.input-wrapper input:focus {
+    outline: none;
+    border-color: #58a6ff;
+}
+
+.apply-btn {
+    width: 100%;
+    background: #238636;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin-top: 10px;
+}
+
+.apply-btn:hover {
+    background: #2ea043;
+}
+
+.apply-btn:active {
+    transform: scale(0.98);
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 20px;
+    overflow: hidden;
+    display: flex;
+}
+
+.events-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    height: 100%;
+}
+
+/* Funding Sidebar */
+.funding-sidebar {
+    width: 300px;
+    background: #161b22;
+    border-left: 1px solid #30363d;
+    padding: 20px;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.funding-sidebar h2 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    color: #f0f6fc;
+}
+
+.funding-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.funding-section {
+    grid-column: 1 / -1;
+}
+
+.funding-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+/* Updated Funding Card Styles */
+.funding-card {
+    background: #0d1117;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #30363d;
+    transition: all 0.2s ease;
+}
+
+.funding-card h3 {
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+    color: #c9d1d9;
+}
+
+.funding-card .rate {
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.funding-card .annual {
+    font-size: 0.85rem;
+    color: #8b949e;
+    margin-bottom: 4px;
+}
+
+.funding-card .direction {
+    font-size: 0.75rem;
+    padding: 3px 6px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 4px;
+}
+
+.funding-card.positive .rate { color: #f85149; }
+.funding-card.positive .direction { 
+    background: rgba(248, 81, 73, 0.1); 
+    color: #f85149;
+}
+
+.funding-card.negative .rate { color: #3fb950; }
+.funding-card.negative .direction { 
+    background: rgba(63, 185, 80, 0.1); 
+    color: #3fb950;
+}
+
+.funding-card.extreme {
+    border-color: #f85149;
+    /* Removed animation to prevent GPU issues */
+}
+
+/* Removed pulse animation to reduce GPU load */
+
+.event-section {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-section h2 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    color: #f0f6fc;
+}
+
+.event-list {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    min-height: 0;
+}
+
+.event-item {
+    background: #161b22;
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    border-left: 4px solid #30363d;
+    transition: all 0.2s ease;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.event-item.liquidation-long {
+    border-left-color: #1f6feb;
+}
+
+.event-item.liquidation-short {
+    border-left-color: #a371f7;
+}
+
+.event-item.trade-buy {
+    border-left-color: #3fb950;
+}
+
+.event-item.trade-sell {
+    border-left-color: #f85149;
+}
+
+.event-item .time {
+    font-size: 0.8rem;
+    color: #8b949e;
+    margin-bottom: 4px;
+}
+
+.event-item .symbol {
+    font-weight: bold;
+    color: #58a6ff;
+    margin-right: 10px;
+}
+
+.event-item .price {
+    color: #f0f6fc;
+    margin-right: 10px;
+}
+
+.event-item .value {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.event-item.large-value .value {
+    color: #ffd700;
+    /* Removed animation to prevent GPU issues */
+}
+
+/* Chart section removed */
+
+/* Scrollbar styling */
+.event-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.event-list::-webkit-scrollbar-track {
+    background: #161b22;
+}
+
+.event-list::-webkit-scrollbar-thumb {
+    background: #30363d;
+    border-radius: 4px;
+}
+
+.event-list::-webkit-scrollbar-thumb:hover {
+    background: #484f58;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+}

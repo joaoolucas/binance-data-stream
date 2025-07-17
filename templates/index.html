@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binance Data Stream Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Settings Panel -->
+        <div class="settings-panel">
+            <h2>⚙️ Settings</h2>
+            
+            <div class="settings-section">
+                <h3>Symbols</h3>
+                <div class="symbol-grid">
+                    <label class="symbol-toggle">
+                        <input type="checkbox" id="btc-check" checked>
+                        <span class="toggle-label">BTC</span>
+                    </label>
+                    <label class="symbol-toggle">
+                        <input type="checkbox" id="eth-check" checked>
+                        <span class="toggle-label">ETH</span>
+                    </label>
+                    <label class="symbol-toggle">
+                        <input type="checkbox" id="sol-check">
+                        <span class="toggle-label">SOL</span>
+                    </label>
+                    <label class="symbol-toggle">
+                        <input type="checkbox" id="bnb-check">
+                        <span class="toggle-label">BNB</span>
+                    </label>
+                    <label class="symbol-toggle">
+                        <input type="checkbox" id="doge-check">
+                        <span class="toggle-label">DOGE</span>
+                    </label>
+                    <label class="symbol-toggle">
+                        <input type="checkbox" id="xrp-check">
+                        <span class="toggle-label">XRP</span>
+                    </label>
+                    <label class="symbol-toggle">
+                        <input type="checkbox" id="ada-check">
+                        <span class="toggle-label">ADA</span>
+                    </label>
+                    <label class="symbol-toggle">
+                        <input type="checkbox" id="avax-check">
+                        <span class="toggle-label">AVAX</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <h3>Thresholds</h3>
+                <div class="threshold-inputs">
+                    <div class="input-group">
+                        <label for="min-liquidation">Min Liquidation</label>
+                        <div class="input-wrapper">
+                            <span class="input-prefix">$</span>
+                            <input type="number" id="min-liquidation" value="100000" min="0" step="10000">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="min-trade">Min Trade</label>
+                        <div class="input-wrapper">
+                            <span class="input-prefix">$</span>
+                            <input type="number" id="min-trade" value="500000" min="0" step="50000">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="apply-settings" class="apply-btn">Apply Settings</button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="events-grid">
+                <!-- Liquidations Section -->
+                <section class="event-section">
+                    <h2>💥 Liquidations</h2>
+                    <div class="event-list" id="liquidations-list">
+                        <!-- Liquidations will be added here -->
+                    </div>
+                </section>
+
+                <!-- Trades Section -->
+                <section class="event-section">
+                    <h2>📈 Big Trades</h2>
+                    <div class="event-list" id="trades-list">
+                        <!-- Trades will be added here -->
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Funding Rates Sidebar -->
+        <div class="funding-sidebar">
+            <h2>💰 Funding Rates</h2>
+            <div id="funding-rates" class="funding-list">
+                <!-- Funding cards will be dynamically added -->
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
