@@ -50,7 +50,10 @@ def health():
                 # Check if liquidation stream is active
                 if '!forceOrder@arr' not in stream_instance.current_subscriptions:
                     health_data['status'] = 'degraded'
-                    health_data['error'] = 'Liquidation stream not active'
+                    health_data['error'] = 'Liquidation stream not in subscriptions'
+                elif '!forceOrder@arr' not in stream_instance.ws_manager.connections:
+                    health_data['status'] = 'degraded'
+                    health_data['error'] = 'Liquidation stream not connected'
         else:
             health_data['status'] = 'unhealthy'
             health_data['error'] = 'Stream instance not initialized'

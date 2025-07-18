@@ -138,6 +138,10 @@ class BinanceDataStreamVisualDynamic:
         """Update WebSocket streams based on active symbols"""
         # Close existing connections that are no longer needed
         for stream_name in list(self.current_subscriptions.keys()):
+            # Skip special streams like liquidation stream
+            if stream_name.startswith('!'):
+                continue
+                
             symbol = stream_name.split('@')[0].upper()
             if symbol.replace('USDT', '') not in self.active_symbols:
                 # Close this stream
@@ -150,6 +154,16 @@ class BinanceDataStreamVisualDynamic:
         
         # Add new streams
         new_subscriptions = []
+        
+        # Ensure liquidation stream is always active
+        if "!forceOrder@arr" not in self.current_subscriptions:
+            new_subscriptions.append({
+                'stream': "!forceOrder@arr",
+                'callback': self.liquidation_handler.handle_liquidation,
+                'is_futures': True
+            })
+            self.current_subscriptions["!forceOrder@arr"] = True
+            logger.info("Re-adding liquidation stream")
         
         for symbol in self.active_symbols:
             symbol_lower = symbol.lower() + 'usdt'
