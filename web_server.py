@@ -61,6 +61,32 @@ def health():
     return jsonify(health_data)
 
 
+@app.route('/debug')
+def debug():
+    """Debug endpoint to check stream instance"""
+    import main_visual_production
+    
+    debug_data = {
+        'stream_instance_exists': main_visual_production.stream_instance is not None,
+        'stream_instance_type': str(type(main_visual_production.stream_instance)) if main_visual_production.stream_instance else None,
+        'has_ws_manager': False,
+        'has_loop': False,
+        'active_symbols': [],
+        'min_liquidation_usd': None,
+        'min_trade_usd': None
+    }
+    
+    if main_visual_production.stream_instance:
+        si = main_visual_production.stream_instance
+        debug_data['has_ws_manager'] = hasattr(si, 'ws_manager') and si.ws_manager is not None
+        debug_data['has_loop'] = hasattr(si, 'loop') and si.loop is not None
+        debug_data['active_symbols'] = getattr(si, 'active_symbols', [])
+        debug_data['min_liquidation_usd'] = getattr(si, 'min_liquidation_usd', None)
+        debug_data['min_trade_usd'] = getattr(si, 'min_trade_usd', None)
+        
+    return jsonify(debug_data)
+
+
 def emit_liquidation(data):
     """Emit liquidation event to all connected clients"""
     event = {
@@ -123,9 +149,32 @@ def handle_disconnect():
 def handle_settings_update(data):
     """Handle settings update from client"""
     print(f"Settings update received: {data}")
-    # This will be handled by the main application
-    # For now, just acknowledge
-    socketio.emit('settings_updated', {'status': 'ok'})
+    
+    # Import here to avoid circular import
+    try:
+        from main_visual_production import stream_instance
+        
+        if stream_instance:
+            symbols = data.get('symbols', [])
+            min_liq = data.get('minLiquidation')
+            min_trade = data.get('minTrade')
+            
+            stream_instance.update_settings(
+                symbols=symbols if symbols else None,
+                min_liquidation=min_liq,
+                min_trade=min_trade
+            )
+            
+            # Send current funding rates for the active symbols
+            stream_instance.send_current_funding_rates()
+            
+            socketio.emit('settings_updated', {'status': 'ok'})
+        else:
+            print("Warning: stream_instance not initialized")
+            socketio.emit('settings_updated', {'status': 'error', 'message': 'Stream instance not initialized'})
+    except ImportError as e:
+        print(f"Error importing stream_instance: {e}")
+        socketio.emit('settings_updated', {'status': 'error', 'message': 'Stream instance not available'})
 
 
 def run_server():

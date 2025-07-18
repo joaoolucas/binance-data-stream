@@ -6,7 +6,7 @@ from websocket_manager import BinanceWebSocketManager
 from liquidation_handler import LiquidationHandler
 from funding_handler import FundingHandler
 from trades_handler import TradesHandler
-from main_visual_production import VisualLiquidationHandler, VisualFundingHandler, VisualTradesHandler
+from main_visual_production import VisualLiquidationHandler, VisualFundingHandler, VisualTradesHandler, BinanceDataStreamVisualDynamic
 import signal
 import sys
 
@@ -19,75 +19,36 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Global variables
-ws_manager = None
-handlers = None
+stream_instance = None
 loop = None
-subscriptions = []
 
-async def setup_streams():
-    """Setup WebSocket streams"""
-    global ws_manager, handlers, subscriptions
+async def setup_and_run_streams():
+    """Setup and run WebSocket streams"""
+    global stream_instance
     
     logger.info("Setting up WebSocket streams...")
     
-    # Initialize components
-    ws_manager = BinanceWebSocketManager()
-    handlers = {
-        'liquidation': VisualLiquidationHandler(100000),
-        'funding': VisualFundingHandler(10),
-        'trades': VisualTradesHandler(500000)
-    }
+    # Initialize the stream instance
+    stream_instance = BinanceDataStreamVisualDynamic()
     
-    # Subscribe to liquidation stream (all symbols)
-    subscriptions = [{
-        'stream': "!forceOrder@arr",
-        'callback': handlers['liquidation'].handle_liquidation,
-        'is_futures': True
-    }]
+    # Make it available for imports
+    import main_visual_production
+    main_visual_production.stream_instance = stream_instance
     
-    # Add streams for default symbols
-    default_symbols = ['BTC', 'ETH']
-    for symbol in default_symbols:
-        symbol_lower = symbol.lower() + 'usdt'
-        
-        # Trade streams
-        subscriptions.append({
-            'stream': f"{symbol_lower}@aggTrade",
-            'callback': handlers['trades'].handle_trade,
-            'is_futures': True
-        })
-        
-        # Funding streams
-        subscriptions.append({
-            'stream': f"{symbol_lower}@markPrice",
-            'callback': handlers['funding'].handle_funding_rate,
-            'is_futures': True
-        })
-    
-    logger.info(f"Subscribing to {len(subscriptions)} streams...")
-    await ws_manager.subscribe_multiple(subscriptions)
-    logger.info("WebSocket streams setup complete!")
+    # Start the streams
+    await stream_instance.start()
 
 async def run_async_tasks():
     """Run async tasks"""
     global loop
     loop = asyncio.get_event_loop()
     
-    # Setup streams
-    await setup_streams()
-    
-    # Start trade aggregation task
-    trade_task = asyncio.create_task(handlers['trades'].print_aggregated_trades())
-    
-    # Keep running
     try:
-        while True:
-            await asyncio.sleep(1)
+        await setup_and_run_streams()
     except asyncio.CancelledError:
         logger.info("Async tasks cancelled")
-        trade_task.cancel()
-        if ws_manager:
-            await ws_manager.close_all()
+        if stream_instance:
+            stream_instance.stop()
 
 def run_in_thread():
     """Run async code in a thread"""
@@ -104,8 +65,8 @@ application = app
 # Signal handler for graceful shutdown
 def signal_handler(sig, frame):
     logger.info('Shutting down gracefully...')
-    if ws_manager and loop:
-        asyncio.run_coroutine_threadsafe(ws_manager.close_all(), loop)
+    if stream_instance:
+        stream_instance.stop()
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)

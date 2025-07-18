@@ -99,6 +99,7 @@ class BinanceDataStreamVisualDynamic:
         
     def update_settings(self, symbols=None, min_liquidation=None, min_trade=None):
         """Update settings dynamically - thread safe"""
+        logger.info(f"update_settings called with symbols={symbols}, min_liq={min_liquidation}, min_trade={min_trade}")
         update_data = {}
         
         if symbols is not None:
@@ -118,10 +119,13 @@ class BinanceDataStreamVisualDynamic:
             
         # Queue the update for the async loop to handle
         if self.loop and update_data:
+            logger.info(f"Queueing update: {update_data}")
             asyncio.run_coroutine_threadsafe(
                 self.update_queue.put(update_data),
                 self.loop
             )
+        else:
+            logger.warning(f"Cannot queue update - loop={self.loop}, update_data={update_data}")
         
     def send_current_funding_rates(self):
         """Send current funding rates for active symbols"""
@@ -266,42 +270,23 @@ class BinanceDataStreamVisualDynamic:
 stream_instance = None
 
 
-@socketio.on('update_settings')
-def handle_settings_update(data):
-    """Handle settings update from client"""
-    print(f"Settings update received: {data}")
-    
-    if stream_instance:
-        symbols = data.get('symbols', [])
-        min_liq = data.get('minLiquidation')
-        min_trade = data.get('minTrade')
-        
-        stream_instance.update_settings(
-            symbols=symbols if symbols else None,
-            min_liquidation=min_liq,
-            min_trade=min_trade
-        )
-        
-        # Send current funding rates for the active symbols
-        stream_instance.send_current_funding_rates()
-    
-    socketio.emit('settings_updated', {'status': 'ok'})
-
-
 def run_async_in_thread():
     """Run the async data streams in a separate thread"""
     global stream_instance
+    
+    logger.info("Starting async thread...")
     
     # Create new event loop for this thread
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     
     stream_instance = BinanceDataStreamVisualDynamic()
+    logger.info(f"Stream instance created: {stream_instance}")
     
     try:
         loop.run_until_complete(stream_instance.start())
     except Exception as e:
-        logger.error(f"Error in async thread: {e}")
+        logger.error(f"Error in async thread: {e}", exc_info=True)
     finally:
         loop.close()
 

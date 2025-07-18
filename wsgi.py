@@ -1,7 +1,17 @@
 import threading
 import time
+import logging
 from web_server import app, socketio
 from main_visual_production import run_async_in_thread
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+logger.info("Starting WSGI application...")
 
 # Start the data streams in a separate thread
 data_thread = threading.Thread(target=run_async_in_thread, daemon=True)
