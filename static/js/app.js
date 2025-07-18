@@ -46,8 +46,37 @@ socket.on('funding', (data) => {
 
 // Setup controls
 document.addEventListener('DOMContentLoaded', () => {
+    // Setup settings panel toggle
+    const settingsToggle = document.getElementById('settings-toggle');
+    const settingsPanel = document.getElementById('settings-panel');
+    const mainContent = document.querySelector('.main-content');
+    
+    settingsToggle.addEventListener('click', () => {
+        settingsPanel.classList.toggle('hidden');
+        mainContent.classList.toggle('settings-hidden');
+        
+        // Update button position when panel is hidden
+        if (settingsPanel.classList.contains('hidden')) {
+            settingsToggle.style.left = '20px';
+        } else {
+            settingsToggle.style.left = '300px';
+        }
+    });
+    
+    // Initialize button position
+    settingsToggle.style.left = '300px';
+    
+    // Initialize funding rates visibility
+    const showFundingRates = document.getElementById('show-funding-rates').checked;
+    const fundingSidebar = document.querySelector('.funding-sidebar');
+    if (fundingSidebar && !showFundingRates) {
+        fundingSidebar.style.display = 'none';
+    }
+    
     // Initialize funding cards for default symbols
-    updateFundingCards();
+    if (showFundingRates) {
+        updateFundingCards();
+    }
     
     // Apply settings button
     document.getElementById('apply-settings').addEventListener('click', applySettings);
@@ -128,6 +157,10 @@ function updateFundingRate(symbol, data) {
     // Check if this symbol is active
     if (!activeSymbols.includes(symbolShort)) return;
     
+    // Check if funding rates should be shown
+    const showFundingRates = document.getElementById('show-funding-rates');
+    if (showFundingRates && !showFundingRates.checked) return;
+    
     const elementId = `${symbolShort.toLowerCase()}-funding`;
     const card = document.getElementById(elementId);
     
@@ -179,13 +212,24 @@ function applySettings() {
     const newMinLiquidation = parseInt(document.getElementById('min-liquidation').value) || 0;
     const newMinTrade = parseInt(document.getElementById('min-trade').value) || 0;
     
+    // Get display options
+    const showFundingRates = document.getElementById('show-funding-rates').checked;
+    
     // Update state
     activeSymbols = newSymbols;
     thresholds.minLiquidation = newMinLiquidation;
     thresholds.minTrade = newMinTrade;
     
+    // Handle funding rates visibility
+    const fundingSidebar = document.querySelector('.funding-sidebar');
+    if (fundingSidebar) {
+        fundingSidebar.style.display = showFundingRates ? 'block' : 'none';
+    }
+    
     // Update funding cards
-    updateFundingCards();
+    if (showFundingRates) {
+        updateFundingCards();
+    }
     
     // Send to server
     sendSettingsUpdate();

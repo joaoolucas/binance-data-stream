@@ -17,6 +17,7 @@ body {
     display: flex;
     height: 100vh;
     gap: 0;
+    position: relative;
 }
 
 /* Header removed */
@@ -50,6 +51,27 @@ h1 {
     color: #f0f6fc;
 }
 
+/* Settings Toggle Button */
+.settings-toggle-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    background: #21262d;
+    border: 1px solid #30363d;
+    color: #8b949e;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.2s ease;
+}
+
+.settings-toggle-btn:hover {
+    background: #30363d;
+    color: #f0f6fc;
+}
+
 /* Settings Panel */
 .settings-panel {
     width: 280px;
@@ -58,6 +80,11 @@ h1 {
     padding: 20px;
     overflow-y: auto;
     flex-shrink: 0;
+    transition: transform 0.3s ease;
+}
+
+.settings-panel.hidden {
+    transform: translateX(-100%);
 }
 
 .settings-panel h2 {
@@ -118,6 +145,27 @@ h1 {
     display: flex;
     flex-direction: column;
     gap: 15px;
+}
+
+.display-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: #c9d1d9;
+    font-size: 0.9rem;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
 }
 
 .input-group {
@@ -187,6 +235,11 @@ h1 {
     padding: 20px;
     overflow: hidden;
     display: flex;
+    transition: margin-left 0.3s ease;
+}
+
+.main-content.settings-hidden {
+    margin-left: -280px;
 }
 
 .events-grid {

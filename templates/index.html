@@ -9,8 +9,13 @@
 </head>
 <body>
     <div class="app-layout">
+        <!-- Settings Toggle Button -->
+        <button id="settings-toggle" class="settings-toggle-btn" title="Toggle Settings">
+            ⚙️
+        </button>
+
         <!-- Settings Panel -->
-        <div class="settings-panel">
+        <div class="settings-panel" id="settings-panel">
             <h2>⚙️ Settings</h2>
             
             <div class="settings-section">
@@ -68,6 +73,16 @@
                             <input type="number" id="min-trade" value="500000" min="0" step="50000">
                         </div>
                     </div>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <h3>Display Options</h3>
+                <div class="display-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="show-funding-rates" checked>
+                        <span>Show Funding Rates</span>
+                    </label>
                 </div>
             </div>
             
