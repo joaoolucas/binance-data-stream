@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO
 from flask_cors import CORS
 import asyncio
@@ -22,6 +22,43 @@ MAX_RECENT_EVENTS = 50
 @app.route('/')
 def index():
     return render_template('index.html')
+
+
+@app.route('/health')
+def health():
+    """Health check endpoint for monitoring WebSocket connections"""
+    from main_visual_production import stream_instance
+    
+    health_data = {
+        'status': 'healthy',
+        'websocket_connections': 0,
+        'active_streams': [],
+        'stream_instance': False,
+        'recent_liquidations': len(recent_events['liquidations']),
+        'recent_trades': len(recent_events['trades']),
+        'funding_symbols': len(recent_events['funding'])
+    }
+    
+    try:
+        if stream_instance:
+            health_data['stream_instance'] = True
+            if hasattr(stream_instance, 'ws_manager') and stream_instance.ws_manager:
+                # Count active connections
+                health_data['websocket_connections'] = len(stream_instance.ws_manager.connections)
+                health_data['active_streams'] = list(stream_instance.current_subscriptions.keys())
+                
+                # Check if liquidation stream is active
+                if '!forceOrder@arr' not in stream_instance.current_subscriptions:
+                    health_data['status'] = 'degraded'
+                    health_data['error'] = 'Liquidation stream not active'
+        else:
+            health_data['status'] = 'unhealthy'
+            health_data['error'] = 'Stream instance not initialized'
+    except Exception as e:
+        health_data['status'] = 'error'
+        health_data['error'] = str(e)
+    
+    return jsonify(health_data)
 
 
 def emit_liquidation(data):

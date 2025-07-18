@@ -20,6 +20,8 @@ class BinanceWebSocketManager:
         """Connect to a Binance WebSocket stream"""
         url = f"{self.base_url}/ws/{stream_name}" if is_futures else f"{self.spot_url}/ws/{stream_name}"
         
+        logger.info(f"Attempting to connect to WebSocket: {url}")
+        
         if stream_name not in self.callbacks:
             self.callbacks[stream_name] = []
         self.callbacks[stream_name].append(callback)
@@ -27,11 +29,12 @@ class BinanceWebSocketManager:
         try:
             websocket = await websockets.connect(url)
             self.connections[stream_name] = websocket
+            logger.info(f"Successfully connected to {stream_name}")
             
             asyncio.create_task(self._handle_messages(stream_name, websocket))
             
         except Exception as e:
-            logger.error(f"Failed to connect to {stream_name}: {e}")
+            logger.error(f"Failed to connect to {stream_name}: {e}", exc_info=True)
             raise
             
     async def _handle_messages(self, stream_name: str, websocket: websockets.WebSocketClientProtocol):

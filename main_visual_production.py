@@ -15,8 +15,10 @@ from web_server import app, socketio, emit_liquidation, emit_trade, emit_funding
 init()
 
 # Configure logging
+import os
+log_level = os.environ.get('LOG_LEVEL', 'INFO')
 logging.basicConfig(
-    level=logging.WARNING,
+    level=getattr(logging, log_level.upper(), logging.INFO),
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)

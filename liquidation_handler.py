@@ -15,6 +15,9 @@ class LiquidationHandler:
     async def handle_liquidation(self, data: Dict):
         """Process liquidation order data from Binance futures"""
         try:
+            # Log incoming data for debugging
+            logger.info(f"Received liquidation data: {data}")
+            
             # The !forceOrder@arr stream returns data in this format:
             # {"e":"forceOrder","E":123456789,"o":{"s":"BTCUSDT","S":"SELL","o":"LIMIT","f":"IOC","q":"0.001","p":"9910.00","ap":"9910.00","x":"FILLED","l":"0.001","z":"0.001","T":123456789}}
             
@@ -22,7 +25,8 @@ class LiquidationHandler:
             if data.get('e') == 'forceOrder' and 'o' in data:
                 order_data = data.get('o', {})
             else:
-                # Silently ignore unexpected format
+                # Log unexpected format
+                logger.warning(f"Unexpected liquidation format: event={data.get('e', 'unknown')}, has_o={'o' in data}")
                 return
                 
             symbol = order_data.get('s', 'Unknown')
@@ -36,15 +40,23 @@ class LiquidationHandler:
             quantity = float(order_data.get('z', 0))  # Use filled quantity
             timestamp = data.get('E', 0)  # Use event time from outer object
             
+            # Validate data
+            if price <= 0 or quantity <= 0:
+                logger.warning(f"Invalid liquidation data: symbol={symbol}, side={side}, price={price}, quantity={quantity}")
+                return
+            
             # Calculate USD value
             usd_value = price * quantity
+            
+            # Log all liquidations for debugging
+            logger.info(f"Liquidation: {symbol} {side} ${usd_value:,.2f} (threshold=${self.min_usd_value:,.0f})")
             
             # Only process large liquidations
             if usd_value >= self.min_usd_value:
                 self._print_liquidation(symbol, side, price, quantity, usd_value, timestamp)
                 
         except Exception as e:
-            logger.error(f"Error processing liquidation data: {e}")
+            logger.error(f"Error processing liquidation data: {e}", exc_info=True)
             
     def _print_liquidation(self, symbol: str, side: str, price: float, 
                           quantity: float, usd_value: float, timestamp: int):
